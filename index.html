@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sunidhi Chauhan — Songbird of Fire</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; overflow: hidden; font-family: 'DM Sans', sans-serif; }
+
+  #header {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 28px 40px 0;
+    z-index: 10; pointer-events: none;
+  }
+  #byline {
+    position: fixed; top: 28px; right: 40px;
+    z-index: 10; pointer-events: none; text-align: right;
+  }
+  #byline span { color: #949292; font-size: 9px; letter-spacing: 1px; }
+  .eyebrow {
+    color: #FF9741; font-size: 9px; letter-spacing: 4px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  h1 {
+    font-family: 'Libre Baskerville', serif;
+    font-size: clamp(16px, 2.5vw, 30px);
+    font-weight: 400; font-style: italic;
+    color: #f0ece4; margin-bottom: 4px;
+  }
+  .sub { color: #2a2a2a; font-size: 10px; }
+
+  #legend {
+    position: fixed; bottom: 48px; left: 40px;
+    display: flex; gap: 20px; z-index: 10; flex-wrap: wrap;
+  }
+  .leg {
+    display: flex; align-items: center; gap: 6px;
+    cursor: pointer; padding: 4px 8px; border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .leg:hover { background: rgba(255,255,255,0.04); }
+  .leg.active .leg-label { color: #f0ece4; }
+  .leg-line { width: 20px; height: 1.5px; }
+  .leg-label { color: #b0adad; font-size: 9px; letter-spacing: 1px; transition: color 0.15s; }
+
+  #credits {
+    position: fixed; bottom: 24px; left: 40px;
+    z-index: 10; pointer-events: none;
+    font-size: 8px; color: #989595; letter-spacing: 0.5px;
+  }
+
+  #card {
+    position: fixed; right: 40px; top: 50%;
+    transform: translateY(-50%);
+    background: rgba(10,10,10,0.95);
+    border: 1px solid #1a1a1a; border-radius: 8px;
+    padding: 20px 24px; width: 240px;
+    display: none; z-index: 20; transition: opacity 0.15s;
+  }
+  .card-year {
+    color: #fa8e35; font-size: 9px;
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .card-title {
+    font-size: 14px; font-weight: 500;
+    color: #f0ece4; line-height: 1.4; margin-bottom: 4px;
+  }
+  .card-views { color: #444; font-size: 11px; margin-bottom: 16px; }
+  .card-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-val { font-size: 18px; font-weight: 500; color: #f0ece4; }
+  .stat-label { font-size: 8px; color: #333; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 1px; }
+  .card-mood {
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid #1a1a1a;
+    font-size: 10px; color: #333;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mood-dot { width: 8px; height: 8px; border-radius: 50%; }
+  canvas { display: block; touch-action: none; }
+
+  @media (max-width: 768px) {
+    #header { padding: 20px 20px 0; }
+    #byline { top: 20px; right: 20px; }
+    #legend { left: 20px; bottom: 56px; gap: 10px; }
+    #credits { left: 20px; bottom: 24px; }
+    #card {
+      right: 0; left: 0; top: auto; bottom: 0;
+      transform: none; width: 100%;
+      border-radius: 12px 12px 0 0;
+      border-left: none; border-right: none; border-bottom: none;
+      padding: 16px 20px 32px;
+    }
+    .card-stats { grid-template-columns: repeat(4, 1fr); }
+    .stat-val { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="byline"><span>By Nirukti Nayak</span></div>
+
+<div id="header">
+  <div class="eyebrow">Sunidhi Chauhan ·</div>
+  <h1>Songbird of fire</h1>
+  <p class="sub">103 songs · stacked by BPM · hover to explore</p>
+</div>
+
+<div id="legend">
+  <div class="leg" data-filter="all"><div class="leg-line" style="background:#555;"></div><span class="leg-label">all</span></div>
+  <div class="leg" data-filter="euphoric"><div class="leg-line" style="background:#FF9741;"></div><span class="leg-label">euphoric</span></div>
+  <div class="leg" data-filter="intense"><div class="leg-line" style="background:#F9784A;"></div><span class="leg-label">intense</span></div>
+  <div class="leg" data-filter="melancholic"><div class="leg-line" style="background:#A4C3BE;"></div><span class="leg-label">melancholic</span></div>
+</div>
+
+<div id="credits">data: YouTube API · ReccoBeats · Spotify &nbsp;·&nbsp; <a href="https://twitter.com/nirukti" target="_blank">@nirukti</a></div>
+
+<div id="card">
+  <div class="card-year" id="c-year"></div>
+  <div class="card-title" id="c-title"></div>
+  <div class="card-views" id="c-views"></div>
+  <div class="card-stats">
+    <div><div class="stat-val" id="c-bpm"></div><div class="stat-label">BPM</div></div>
+    <div><div class="stat-val" id="c-energy"></div><div class="stat-label">Energy</div></div>
+    <div><div class="stat-val" id="c-valence"></div><div class="stat-label">Mood</div></div>
+    <div><div class="stat-val" id="c-dance"></div><div class="stat-label">Dance</div></div>
+  </div>
+  <div class="card-mood">
+    <div class="mood-dot" id="c-dot"></div>
+    <span id="c-mood-label"></span>
+  </div>
+</div>
+
+<canvas id="cv"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
+<script type="text/paperscript" canvas="cv">
+
+var songs = [
+  {title:"Sultana",year:2025,views:22968471,tempo:181.9,energy:0.731,valence:0.593,dance:0.677},
+  {title:"Kajra Kajra",year:2010,views:59653293,tempo:175.9,energy:0.564,valence:0.618,dance:0.606},
+  {title:"Kamli",year:2013,views:642359244,tempo:175.1,energy:0.925,valence:0.738,dance:0.619},
+  {title:"Janib",year:2015,views:11504228,tempo:171.8,energy:0.833,valence:0.533,dance:0.452},
+  {title:"Ainvayi Ainvayi",year:2010,views:105377027,tempo:156.0,energy:0.742,valence:0.876,dance:0.689},
+  {title:"Ae Watan",year:2018,views:172035582,tempo:157.5,energy:0.567,valence:0.344,dance:0.485},
+  {title:"Tere Liye",year:2018,views:9815936,tempo:141.8,energy:0.572,valence:0.244,dance:0.467},
+  {title:"Yaaram",year:2013,views:18023296,tempo:140.0,energy:0.645,valence:0.336,dance:0.639},
+  {title:"Phatte Tak Nachna",year:2015,views:16893597,tempo:139.968,energy:0.939,valence:0.96,dance:0.792},
+  {title:"Saami Saami",year:2021,views:759692923,tempo:139.9,energy:0.801,valence:0.908,dance:0.837},
+  {title:"Shreaam Pagal",year:2021,views:3155051,tempo:138.205,energy:0.479,valence:0.291,dance:0.37},
+  {title:"Dilliwali Girlfriend",year:2013,views:127084243,tempo:138.048,energy:0.941,valence:0.909,dance:0.687},
+  {title:"Hatt Ja Tau",year:2018,views:184162386,tempo:136.989,energy:0.913,valence:0.945,dance:0.726},
+  {title:"Desi Girl",year:2008,views:174441222,tempo:136.051,energy:0.924,valence:0.807,dance:0.746},
+  {title:"Ding Dong Dole",year:2002,views:116896891,tempo:134.857,energy:0.748,valence:0.7,dance:0.747},
+  {title:"Bumbro Bumbro",year:2000,views:31014616,tempo:135.953,energy:0.834,valence:0.757,dance:0.712},
+  {title:"Udi Teri Aankhon Se",year:2010,views:73859142,tempo:132.97,energy:0.896,valence:0.652,dance:0.727},
+  {title:"Butterfly",year:2017,views:9177554,tempo:132.99,energy:0.969,valence:0.859,dance:0.676},
+  {title:"Parda Song",year:2010,views:58341855,tempo:132.019,energy:0.878,valence:0.7,dance:0.689},
+  {title:"Dekho Nashe Mein",year:2008,views:25332524,tempo:132.104,energy:0.964,valence:0.709,dance:0.723},
+  {title:"Halkat Jawani",year:2012,views:17958509,tempo:131.984,energy:0.812,valence:0.908,dance:0.709},
+  {title:"Engine Ki Seeti",year:2014,views:18100719,tempo:131.955,energy:0.789,valence:0.497,dance:0.785},
+  {title:"Te Amo",year:2011,views:85837988,tempo:127.894,energy:0.757,valence:0.597,dance:0.594},
+  {title:"Dance Pe Chance",year:2008,views:208609596,tempo:128.024,energy:0.893,valence:0.937,dance:0.884},
+  {title:"Mubarakaan",year:2003,views:145191110,tempo:128.051,energy:0.883,valence:0.764,dance:0.695},
+  {title:"Halka Halka",year:2018,views:242811667,tempo:127.985,energy:0.796,valence:0.541,dance:0.691},
+  {title:"Radha",year:2017,views:67774209,tempo:126.995,energy:0.896,valence:0.854,dance:0.693},
+  {title:"Right Now Now",year:2012,views:102704962,tempo:125.974,energy:0.612,valence:0.871,dance:0.814},
+  {title:"The Disco Song",year:2012,views:273662193,tempo:125.006,energy:0.939,valence:0.615,dance:0.69},
+  {title:"Girls Like To Swing",year:2015,views:17395326,tempo:125.026,energy:0.869,valence:0.605,dance:0.839},
+  {title:"Aa Zara",year:2011,views:15696627,tempo:126.02,energy:0.814,valence:0.694,dance:0.653},
+  {title:"Tu Hi Khwahish",year:2013,views:44736422,tempo:125.023,energy:0.862,valence:0.606,dance:0.707},
+  {title:"Aala Re Aala",year:2013,views:109533145,tempo:124.067,energy:0.827,valence:0.653,dance:0.766},
+  {title:"Babli Badmaash",year:2013,views:38442856,tempo:124.015,energy:0.928,valence:0.882,dance:0.652},
+  {title:"Ghoomar",year:2006,views:21411909,tempo:123.984,energy:0.98,valence:0.875,dance:0.645},
+  {title:"Mahi Mahi",year:2004,views:71582890,tempo:123.953,energy:0.88,valence:0.739,dance:0.806},
+  {title:"Shut Up & Bounce",year:2008,views:60823885,tempo:121.981,energy:0.857,valence:0.904,dance:0.578},
+  {title:"Kyon",year:2012,views:24142996,tempo:121.922,energy:0.664,valence:0.831,dance:0.726},
+  {title:"Ghar Aao Na",year:2021,views:6629718,tempo:120.154,energy:0.672,valence:0.314,dance:0.391},
+  {title:"Aaja Nachle",year:2007,views:367293484,tempo:120.003,energy:0.878,valence:0.84,dance:0.771},
+  {title:"Kaisi Paheli Zindagani",year:2018,views:10607085,tempo:119.871,energy:0.314,valence:0.751,dance:0.729},
+  {title:"Maria Maria",year:2007,views:117539674,tempo:122.989,energy:0.904,valence:0.531,dance:0.669},
+  {title:"Sajanaji Vari Vari",year:2007,views:70612246,tempo:143.986,energy:0.904,valence:0.961,dance:0.735},
+  {title:"Bhage Re Man",year:2003,views:9658613,tempo:117.012,energy:0.693,valence:0.592,dance:0.693},
+  {title:"Lucky Boy",year:2008,views:53096907,tempo:114.981,energy:0.827,valence:0.588,dance:0.79},
+  {title:"Sava Dollar",year:2012,views:9738803,tempo:114.926,energy:0.797,valence:0.667,dance:0.807},
+  {title:"Meri Zindagi Mein",year:2001,views:15532263,tempo:114.886,energy:0.76,valence:0.706,dance:0.715},
+  {title:"Mere Sang",year:2009,views:9887279,tempo:114.867,energy:0.535,valence:0.577,dance:0.624},
+  {title:"Aisa Jaadu Dala Re",year:2003,views:57544487,tempo:128.01,energy:0.919,valence:0.7,dance:0.712},
+  {title:"Darkhaast",year:2017,views:93369815,tempo:111.766,energy:0.557,valence:0.196,dance:0.523},
+  {title:"Race Saanson Ki",year:2008,views:5506791,tempo:111.988,energy:0.931,valence:0.587,dance:0.702},
+  {title:"Marjaani",year:2009,views:56302317,tempo:109.427,energy:0.951,valence:0.603,dance:0.773},
+  {title:"Mohabbat",year:2018,views:51964602,tempo:109.861,energy:0.91,valence:0.7,dance:0.696},
+  {title:"Deewangi Deewangi",year:2007,views:422020908,tempo:107.975,energy:0.918,valence:0.927,dance:0.725},
+  {title:"Kashmir Main Tu",year:2013,views:269751512,tempo:106.996,energy:0.743,valence:0.826,dance:0.84},
+  {title:"Punjabi Wedding Song",year:2014,views:122553116,tempo:106.965,energy:0.845,valence:0.769,dance:0.845},
+  {title:"Kahe Sataye",year:2018,views:11255115,tempo:105.972,energy:0.468,valence:0.278,dance:0.638},
+  {title:"Saaki Saaki",year:2004,views:245997591,tempo:104.971,energy:0.918,valence:0.648,dance:0.805},
+  {title:"Sholon Si",year:2004,views:9571209,tempo:105.016,energy:0.87,valence:0.703,dance:0.634},
+  {title:"Chhan Ke Mohalla",year:2010,views:29543891,tempo:104.968,energy:0.92,valence:0.745,dance:0.838},
+  {title:"Tu Zaroori",year:2014,views:62233457,tempo:103.006,energy:0.658,valence:0.923,dance:0.693},
+  {title:"Daawat-e-Ishq",year:2014,views:42068757,tempo:102.958,energy:0.913,valence:0.613,dance:0.493},
+  {title:"De De Pyaar De",year:2019,views:41650198,tempo:103.514,energy:0.931,valence:0.765,dance:0.813},
+  {title:"Pintu Ki Pappi",year:2025,views:11325073,tempo:103.012,energy:0.352,valence:0.676,dance:0.902},
+  {title:"Dhoom Machale",year:2004,views:397878382,tempo:101.44,energy:0.918,valence:0.487,dance:0.778},
+  {title:"Sheila Ki Jawani",year:2010,views:427557454,tempo:101.007,energy:0.859,valence:0.631,dance:0.803},
+  {title:"Aa Tayar Hoja",year:2001,views:6478565,tempo:90.119,energy:0.78,valence:0.747,dance:0.833},
+  {title:"Tauba Tauba",year:2005,views:12841855,tempo:99.951,energy:0.876,valence:0.724,dance:0.696},
+  {title:"Raat Ke Dhai Baje",year:2009,views:20551522,tempo:100.014,energy:0.687,valence:0.783,dance:0.832},
+  {title:"Ishq Vishq",year:2009,views:14858918,tempo:99.979,energy:0.921,valence:0.829,dance:0.802},
+  {title:"Sajna Ve Sajna",year:2024,views:140996716,tempo:99.982,energy:0.875,valence:0.953,dance:0.8},
+  {title:"Mehboob Mere",year:2000,views:157247151,tempo:95.978,energy:0.663,valence:0.751,dance:0.748},
+  {title:"Gun Gun Guna",year:2011,views:81168125,tempo:95.087,energy:0.86,valence:0.538,dance:0.666},
+  {title:"Ekwari Tak Le",year:2000,views:104724594,tempo:94.921,energy:0.743,valence:0.525,dance:0.731},
+  {title:"Nav Nav Lakha",year:2000,views:2145552,tempo:86.922,energy:0.746,valence:0.756,dance:0.72},
+  {title:"Lae Dooba",year:2018,views:120219694,tempo:89.972,energy:0.298,valence:0.466,dance:0.569},
+  {title:"Aashiqui Mein Teri",year:2006,views:29926211,tempo:90.955,energy:0.637,valence:0.615,dance:0.813},
+  {title:"Gela Gela Gela",year:2004,views:52941120,tempo:91.07,energy:0.503,valence:0.622,dance:0.82},
+  {title:"Kafirana",year:2012,views:19004277,tempo:90.984,energy:0.796,valence:0.467,dance:0.62},
+  {title:"Crazy Kiya Re",year:2006,views:292938901,tempo:92.017,energy:0.938,valence:0.81,dance:0.759},
+  {title:"BAADAL",year:2016,views:4967199,tempo:92.05,energy:0.736,valence:0.586,dance:0.758},
+  {title:"Yoddha",year:2022,views:3825248,tempo:93.043,energy:0.73,valence:0.312,dance:0.615},
+  {title:"Mai Marjawangi",year:2023,views:30221749,tempo:95.034,energy:0.823,valence:0.662,dance:0.554},
+  {title:"Voh Tere Mere Ishq Ka",year:2023,views:10052059,tempo:91.616,energy:0.586,valence:0.573,dance:0.451},
+  {title:"Mere Haath Mein",year:2006,views:179540510,tempo:93.922,energy:0.606,valence:0.584,dance:0.554},
+  {title:"Chhaliya",year:2008,views:54140601,tempo:97.999,energy:0.806,valence:0.733,dance:0.806},
+  {title:"Bhari Mehfil",year:2024,views:4704390,tempo:98.055,energy:0.651,valence:0.294,dance:0.626},
+  {title:"Shava Shava",year:2001,views:233589514,tempo:98.808,energy:0.908,valence:0.691,dance:0.665},
+  {title:"Neend Na Aave",year:2019,views:51303438,tempo:96.832,energy:0.674,valence:0.605,dance:0.683},
+  {title:"Bandh Mere Pairo Mein",year:2005,views:95717908,tempo:122.016,energy:0.871,valence:0.697,dance:0.775},
+  {title:"Chokra Jawaan",year:2012,views:171491227,tempo:129.949,energy:0.694,valence:0.612,dance:0.558},
+  {title:"Dekho Na",year:2006,views:42121698,tempo:82.516,energy:0.654,valence:0.54,dance:0.623},
+  {title:"Main Badhiya",year:2018,views:139164439,tempo:81.994,energy:0.793,valence:0.543,dance:0.668},
+  {title:"Bin Tere",year:2010,views:53601375,tempo:139.831,energy:0.698,valence:0.621,dance:0.585},
+  {title:"Adhure",year:2018,views:4378925,tempo:90.068,energy:0.502,valence:0.443,dance:0.598},
+  {title:"Mehbooba Mehbooba",year:2001,views:50686379,tempo:91.728,energy:0.908,valence:0.346,dance:0.764},
+  {title:"Tum Todo Na",year:2015,views:81698507,tempo:74.85,energy:0.639,valence:0.274,dance:0.212},
+  {title:"Hey Shona",year:2007,views:180291745,tempo:75.004,energy:0.601,valence:0.89,dance:0.657},
+  {title:"Kaun Mera",year:2013,views:5993654,tempo:67.098,energy:0.102,valence:0.246,dance:0.354},
+  {title:"TITLIYAN",year:2016,views:11345598,tempo:125.406,energy:0.81,valence:0.178,dance:0.368},
+  {title:"Pyar Ho",year:2017,views:23832745,tempo:null,energy:null,valence:null,dance:null},
+  {title:"Mere Sahib",year:2016,views:12240076,tempo:null,energy:null,valence:null,dance:null},
+];
+
+// Sort by BPM descending, nulls at bottom
+songs.sort(function(a,b) {
+  if(a.tempo === null) return 1;
+  if(b.tempo === null) return -1;
+  return b.tempo - a.tempo;
+});
+
+var n = songs.length;
+var W = view.size.width;
+var H = view.size.height;
+var padTop = 100;
+var padBottom = 50;
+var usableH = H - padTop - padBottom;
+var slotH = usableH / n;
+var maxViews = 759692923;
+var paths = [];
+var phases = [];
+var hoveredIdx = -1;
+
+function bpmColor(index, total, alpha) {
+  var stops = [
+    [0xFF/255, 0x97/255, 0x41/255],
+    [0xF3/255, 0xC0/255, 0x91/255],
+    [0xF9/255, 0x78/255, 0x4A/255],
+    [0xD2/255, 0x60/255, 0x45/255],
+    [0xA4/255, 0xC3/255, 0xBE/255],
+  ];
+  var t = index / (total - 1);
+  var scaled = t * (stops.length - 1);
+  var i = Math.floor(scaled);
+  var f = scaled - i;
+  if(i >= stops.length - 1) return new Color(stops[stops.length-1][0], stops[stops.length-1][1], stops[stops.length-1][2], alpha);
+  var r = stops[i][0] + f * (stops[i+1][0] - stops[i][0]);
+  var g = stops[i][1] + f * (stops[i+1][1] - stops[i][1]);
+  var b = stops[i][2] + f * (stops[i+1][2] - stops[i][2]);
+  return new Color(r, g, b, alpha);
+}
+
+function getMoodCategory(v) {
+  if(v === null) return 'none';
+  if(v >= 0.75) return 'euphoric';
+  if(v <= 0.5)  return 'melancholic';
+  return 'intense';
+}
+
+var activeFilter = 'all';
+
+var POINTS = 12;
+
+// Build paths
+for(var i = 0; i < n; i++) {
+  var s = songs[i];
+  var baseY = padTop + (i + 0.5) * slotH;
+  var thickness = 0.4 + (s.views / maxViews) * 3.5;
+  var alpha = 0.5 + (s.views / maxViews) * 0.35;
+
+  var path = new Path({
+    strokeColor: bpmColor(i, n, alpha),
+    strokeWidth: thickness,
+    strokeCap: 'round',
+    strokeJoin: 'round',
+  });
+
+  for(var j = 0; j <= POINTS; j++) {
+    path.add(new Point(j * W / POINTS, baseY));
+  }
+  path.smooth();
+  paths.push(path);
+  phases.push(Math.random() * Math.PI * 2);
+}
+
+var t = 0;
+
+view.onFrame = function(event) {
+  t += 0.4;
+  var W = view.size.width;
+
+  for(var i = 0; i < n; i++) {
+    var s = songs[i];
+    var path = paths[i];
+    var baseY = padTop + (i + 0.5) * slotH;
+    var tempo = s.tempo || 80;
+    var energy = s.energy || 0.1;
+    var freq = (tempo / 120) * 0.055;
+    var amp = energy * slotH * 1.8;
+    var phase = phases[i];
+
+    var isHovered = (i === hoveredIdx);
+
+    for(var j = 0; j <= POINTS; j++) {
+      var x = j * W / POINTS;
+      var y = baseY + amp * Math.sin(freq * t + j * 0.9 + phase);
+      path.segments[j].point = new Point(x, y);
+    }
+    path.smooth();
+
+    var mood = getMoodCategory(s.valence);
+    var currentFilter = (typeof window !== 'undefined' && window.paperActiveFilter) ? window.paperActiveFilter : 'all';
+    var inFilter = (currentFilter === 'all') || (mood === currentFilter);
+
+    if(hoveredIdx >= 0) {
+      path.opacity = isHovered ? 1 : 0.04;
+      if(isHovered) path.strokeWidth = 0.4 + (s.views / maxViews) * 3.5 + 1.5;
+    } else if(!inFilter) {
+      path.opacity = 0.03;
+      path.strokeWidth = 0.4 + (s.views / maxViews) * 3.5;
+    } else {
+      path.opacity = 0.5 + (s.views / maxViews) * 0.35;
+      path.strokeWidth = 0.4 + (s.views / maxViews) * 3.5;
+    }
+  }
+};
+
+view.onMouseMove = function(event) {
+  var my = event.point.y;
+  var closest = -1;
+  var minDist = slotH * 1.2;
+
+  for(var i = 0; i < n; i++) {
+    var baseY = padTop + (i + 0.5) * slotH;
+    var dist = Math.abs(my - baseY);
+    if(dist < minDist) {
+      minDist = dist;
+      closest = i;
+    }
+  }
+
+  if(closest !== hoveredIdx) {
+    hoveredIdx = closest;
+    if(closest >= 0) showCard(songs[closest]);
+    else hideCard();
+  }
+};
+
+view.onMouseLeave = function() {
+  hoveredIdx = -1;
+  hideCard();
+};
+
+// Touch support
+view.on('touchmove', function(event) {
+  event.preventDefault();
+  var touch = event.event.touches[0];
+  var rect = view.element.getBoundingClientRect();
+  var my = (touch.clientY - rect.top) * (view.size.height / rect.height);
+  var closest = -1;
+  var minDist = slotH * 2.5;
+  for(var i = 0; i < n; i++) {
+    var baseY = padTop + (i + 0.5) * slotH;
+    var dist = Math.abs(my - baseY);
+    if(dist < minDist) { minDist = dist; closest = i; }
+  }
+  if(closest !== hoveredIdx) {
+    hoveredIdx = closest;
+    if(closest >= 0) showCard(songs[closest]);
+    else hideCard();
+  }
+});
+
+view.on('touchend', function() {
+  hoveredIdx = -1;
+  hideCard();
+});
+
+function showCard(s) {
+  var card = document.getElementById('card');
+  document.getElementById('c-year').textContent = s.year;
+  document.getElementById('c-title').textContent = s.title;
+  document.getElementById('c-views').textContent = (s.views/1e6).toFixed(0) + 'M YouTube views';
+  document.getElementById('c-bpm').textContent = s.tempo ? Math.round(s.tempo) : '—';
+  document.getElementById('c-energy').textContent = s.energy ? Math.round(s.energy*100)+'%' : '—';
+  document.getElementById('c-valence').textContent = s.valence ? Math.round(s.valence*100)+'%' : '—';
+  document.getElementById('c-dance').textContent = s.dance ? Math.round(s.dance*100)+'%' : '—';
+
+  var dot = document.getElementById('c-dot');
+  var label = document.getElementById('c-mood-label');
+  if(s.valence === null) {
+    dot.style.background = '#2a2a2a';
+    label.textContent = 'no audio data';
+    label.style.color = '#333';
+  } else if(s.valence >= 0.75) {
+    dot.style.background = '#FF9741';
+    label.textContent = 'euphoric';
+    label.style.color = '#FF9741';
+  } else if(s.valence <= 0.5) {
+    dot.style.background = '#A4C3BE';
+    label.textContent = 'melancholic';
+    label.style.color = '#A4C3BE';
+  } else {
+    dot.style.background = '#F9784A';
+    label.textContent = 'intense';
+    label.style.color = '#F9784A';
+  }
+  card.style.display = 'block';
+}
+
+function hideCard() {
+  document.getElementById('card').style.display = 'none';
+}
+
+// Resize canvas to window
+view.viewSize = new Size(window.innerWidth, window.innerHeight);
+
+</script>
+
+<script>
+  // Resize handler
+  window.addEventListener('resize', function() {
+    var canvas = document.getElementById('cv');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+  var cv = document.getElementById('cv');
+  cv.width = window.innerWidth;
+  cv.height = window.innerHeight;
+
+  // Legend filter
+  document.querySelectorAll('.leg').forEach(function(el) {
+    el.addEventListener('click', function() {
+      var filter = el.getAttribute('data-filter');
+      // Toggle off if already active
+      if(window._activeFilter === filter && filter !== 'all') {
+        window._activeFilter = 'all';
+      } else {
+        window._activeFilter = filter;
+      }
+      // Update Paper.js activeFilter via global
+      var ps = paper.projects[0];
+      // We communicate via a global the paperscript can read
+      window.paperActiveFilter = window._activeFilter;
+      // Update legend styles
+      document.querySelectorAll('.leg').forEach(function(l) {
+        l.classList.remove('active');
+      });
+      if(window._activeFilter !== 'all') {
+        document.querySelector('[data-filter="'+window._activeFilter+'"]').classList.add('active');
+      }
+    });
+  });
+  window._activeFilter = 'all';
+  window.paperActiveFilter = 'all';
+</script>
+</body>
+</html>
